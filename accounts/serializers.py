@@ -1,20 +1,42 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+
+from .models import *
 from django.contrib.auth.models import User
 
-
-
-class UserSerializers(ModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
-
         model = User
-        fields = "__all__"
+        fields = ['username','password']
 
     def create(self, validated_data):
-        username = validated_data.get('username')
-        password = validated_data.get('password')
-        is_staff = validated_data.get('is_staff', False)
-
-        user = User(username=username, is_staff=is_staff)
-        user.set_password(password)
-        user.save()
+        user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'])
         return user
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class OwnerSerializers(ModelSerializer):
+    class Meta:
+        model = Owner
+        fields = "__all__"
+
+class BuyerSerializers(ModelSerializer):
+    class Meta:
+        model = Buyer
+        fields = "__all__"
+

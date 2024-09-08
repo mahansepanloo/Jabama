@@ -3,6 +3,11 @@ from rest_framework import generics
 from . import serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Owner,Buyer
+from rest_framework import status
+from django.db import transaction
 
 
 class Login(TokenObtainPairView):
@@ -27,7 +32,7 @@ class ShowListUser(generics.ListAPIView):
     with admin permissions. Uses UserSerializers for serialization.
     """
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializers
+    serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated, IsAdminUser]
 
 
@@ -36,19 +41,36 @@ class ShowInfoUser(generics.ListAPIView):
     View to retrieve the authenticated user's information. Requires
     authentication. Uses UserSerializers for serialization.
     """
-    serializer_class = serializers.UserSerializers
+    serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return User.objects.filter(username=self.request.user)
 
 
-class CreateUser(generics.CreateAPIView):
+class CreateUser(APIView):
     """
-    View to create a new user. Uses UserSerializers for serialization.
+    View to create a new user.
     """
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializers
+
+    def post(self, request):
+        with transaction.atomic():
+            data = request.data
+            users_serializer = serializers.UserSerializer(data=data)
+            if users_serializer.is_valid():
+                    user = users_serializer.save()
+
+                    role = data.get('rol')
+                    if role == "owner":
+                        Owner.objects.create(user=user)
+                    elif role == "buyer":
+                        Buyer.objects.create(user=user)
+                    else:
+                        return Response({"error": "Invalid role provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+                    return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+
+            return Response(users_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Edit(generics.UpdateAPIView):
@@ -57,7 +79,7 @@ class Edit(generics.UpdateAPIView):
     Uses UserSerializers for serialization.
     """
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializers
+    serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated]
 
 
@@ -67,5 +89,5 @@ class DeletUser(generics.DestroyAPIView):
     with admin permissions. Uses UserSerializers for serialization.
     """
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializers
+    serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated, IsAdminUser]

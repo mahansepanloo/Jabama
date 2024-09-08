@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import Owner,Suporter
+from accounts.models import Owner
 from django.contrib.auth.models import User
 
 
@@ -8,7 +8,6 @@ class Ja(models.Model):
     addres = models.TextField()
     # img = models.ImageField()
     confirmation = models.BooleanField(default=False)
-    userconfirmation = models.ForeignKey(Suporter, on_delete=models.CASCADE,null=True,blank=True)
     created = models.DateTimeField(auto_now=True)
     update = models.DateTimeField(auto_now_add=True)
 
