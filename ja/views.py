@@ -9,7 +9,12 @@ from rest_framework.exceptions import NotFound
 class ListJa(generics.ListCreateAPIView):
     queryset = Ja.objects.filter(confirmation=True)
     serializer_class = JaSerializers
-    permission_classes = [IsAuthenticated]
+
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            self.permission_classes = [IsAuthenticated]
+        return super(ListJa, self).get_permissions()
 
 
 
@@ -35,9 +40,16 @@ class InfoJa(generics.RetrieveAPIView):
     serializer_class = JaSerializers
 
 
+
+
+
 class ManageJa(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ja.objects.all()
     serializer_class = JaSerializers
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Ja.objects.filter(owner__user = self.request.user)
 
 
 

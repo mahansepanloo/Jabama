@@ -52,25 +52,28 @@ class CreateUser(APIView):
     """
     View to create a new user.
     """
-
     def post(self, request):
-        with transaction.atomic():
-            data = request.data
-            users_serializer = serializers.UserSerializer(data=data)
-            if users_serializer.is_valid():
-                    user = users_serializer.save()
+        try:
 
-                    role = data.get('rol')
-                    if role == "owner":
-                        Owner.objects.create(user=user)
-                    elif role == "buyer":
-                        Buyer.objects.create(user=user)
-                    else:
-                        return Response({"error": "Invalid role provided."}, status=status.HTTP_400_BAD_REQUEST)
+            with transaction.atomic():
+                    data = request.data
+                    users_serializer = serializers.UserSerializer(data=data)
+                    if users_serializer.is_valid():
+                            user = users_serializer.save()
 
-                    return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+                            role = data.get('rol')
+                            if role == "owner":
+                                Owner.objects.create(user=user)
+                            elif role == "buyer":
+                                Buyer.objects.create(user=user)
+                            else:
+                                return Response({"error": "Invalid role provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response(users_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+
+                    return Response(users_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class Edit(generics.UpdateAPIView):
