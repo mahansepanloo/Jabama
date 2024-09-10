@@ -43,6 +43,7 @@ class InfoJa(generics.RetrieveAPIView):
 
 
 
+
 class ManageJa(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ja.objects.all()
     serializer_class = JaSerializers

@@ -60,18 +60,19 @@ class CreateUser(APIView):
                     users_serializer = serializers.UserSerializer(data=data)
                     if users_serializer.is_valid():
                             user = users_serializer.save()
+                    else:
+                        return Response({"error": "Invalid user provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-                            role = data.get('rol')
-                            if role == "owner":
+                    role = data.get('rol')
+                    if role == "owner":
                                 Owner.objects.create(user=user)
-                            elif role == "buyer":
+                    elif role == "buyer":
                                 Buyer.objects.create(user=user)
-                            else:
-                                return Response({"error": "Invalid role provided."}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                            return Response({"error": "Invalid role provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-                            return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+                    return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
 
-                    return Response(users_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
