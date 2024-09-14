@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 class Ja(models.Model):
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     addres = models.TextField()
-    # img = models.ImageField()
     confirmation = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now=True)
     update = models.DateTimeField(auto_now_add=True)

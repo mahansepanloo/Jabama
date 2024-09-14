@@ -86,6 +86,10 @@ class Edit(generics.UpdateAPIView):
     serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Buyer.objects.filter(user=self.request.user)
+
 
 class DeletUser(generics.DestroyAPIView):
     """
@@ -95,3 +99,7 @@ class DeletUser(generics.DestroyAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.BuyerSerializers
     permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Buyer.objects.filter(user=self.request.user)
